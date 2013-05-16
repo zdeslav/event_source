@@ -4,7 +4,11 @@ Event_source
 [![Build Status](https://drone.io/github.com/zdeslav/event_source/status.png)](https://drone.io/github.com/zdeslav/event_source/latest)
 
 Event_source is a library for wrist friendly event implementation in Dart.
+
 This is version 0.0.1 - expect bugs and breaking changes.
+
+Overview
+--------
 
 At the moment, idiomatic implementation in Dart requires a bit of boilerplate code:
 
@@ -62,8 +66,10 @@ class Dog  {
 }
 ```
 
-Different ways to configure event identifiers
----------------------------------------------
+Usage
+-----
+
+### Different ways to configure event identifiers
 
 The library dynamically checks the name (it overrides `noSuchMethod`) to create the event identifier internally.
 However, you don't have to rely on dynamic name dispatch if that's not your cup of tea.
@@ -88,8 +94,7 @@ class Dog extends Object with EventSource {
 The difference between `events['RUN']` and `events.RUN` is that in latter case, a `Symbol` instance is used as identifier instead of a string.
 This means that you can't mix these approaches for same event. `events['RUN']` is a different event than `events.RUN`.
 
-Differences between mixin and field approach + caveat
------------------------------------------------------
+### Differences between mixin and field approach + caveat
 
 I lied, there _are_ differences between mixin and field approach.
 
@@ -127,8 +132,7 @@ class Dog {
 
 So feel free to pick what seems the best option to you.
 
-Canceling subscription
-----------------------
+### Canceling subscription
 
 Canceling is done the same way as with any stream:
 
