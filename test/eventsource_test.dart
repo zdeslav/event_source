@@ -30,7 +30,7 @@ class DogComposed
   void bark(String sound) => events.EVENT_BARK.signal(sound);
   void wag() => events[EVENT_WAG].signal();
   void run() => events['onRun'].signal();
-  void drool() => events[() => 2 + 1].signal();
+  void drool() => events[() => 6 / 2].signal();
 }
 
 main() {
