@@ -149,7 +149,9 @@ Copyright and license
 ---------------------
 
 Copyright 2013., Zdeslav Vojkovic.
+
 Licensed under the MIT License, Version 2.0 (the "License");
+
 You may not use this work except in compliance with the License. You may obtain a copy of the License in the LICENSE file, or at:
 
 http://opensource.org/licenses/MIT
