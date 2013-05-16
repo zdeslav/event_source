@@ -63,7 +63,7 @@ class Dog  {
 Different ways to configure event identifiers
 ---------------------------------------------
 
-The library dynamically checks the name (it overrides noSuchMethod) to create the event identifier internally.
+The library dynamically checks the name (it overrides `noSuchMethod`) to create the event identifier internally.
 However, you don't have to rely on dynamic name dispatch if that's not your cup of tea.
 Here are different ways to setup events:
 
@@ -83,24 +83,24 @@ class Dog extends Object with EventSource {
 }
 ```
 
-The difference between `events['RUN']` and `events.RUN`. is that in latter case, a Symbol is used as identifier instead of a string.
+The difference between `events['RUN']` and `events.RUN` is that in latter case, a `Symbol` instance is used as identifier instead of a string.
 This means that you can't mix these approaches for same event. `events['RUN']` is a different event than `events.RUN`.
 
 Differences between mixin and field approach + caveat
 -----------------------------------------------------
 
-I lied, there _are_ differences between mixin and field approach:
+I lied, there _are_ differences between mixin and field approach.
 
 Mixin approach allows following:
 
 ```Dart
 class Dog extends Object with EventSource {
-    Stream<String> get onBark => BARK.stream;   // no need to prepend events.
-    Stream get onWag => this[EVENT_WAG].stream; // this instead of events. EventSource.events returns 'this' anyway
+    Stream<String> get onBark => BARK.stream;   // no need to prepend 'events.'
+    Stream get onWag => this[EVENT_WAG].stream; // 'this' instead of 'events'. 'events' returns 'this' anyway
 }
 ```
 
-If you use the EventSource as a field, you can't omit it, obviously.
+If you use an `EventSource` instance as a field, you don't have this choice, obviously.
 
 **WARNING:**
 
@@ -114,13 +114,12 @@ class Dog extends Object with EventSource {
 ```
 
 The reason is that Dog indeed has `onBark` getter, and as `events` point to the same object, it will again call the getter and so on.
-
 Field approach doesn't exhibit this problem. Following works just fine:
 
 ```Dart
 class Dog {
     EventSource events = new EventSource();
-    Stream get onBark => events.onBark.stream; // no problem here
+    Stream get onBark => events.onBark.stream; // no problem here, delegated to EventSource instance
 }
 ```
 
@@ -147,11 +146,9 @@ Contributions are welcome, just send a pull request and if it fits into library 
 Copyright and license
 ---------------------
 
-Copyright 2013 Zdeslav Vojkovic.
-
+Copyright 2013., Zdeslav Vojkovic.
 Licensed under the MIT License, Version 2.0 (the "License");
-
-you may not use this work except in compliance with the License. You may obtain a copy of the License in the LICENSE file, or at:
+You may not use this work except in compliance with the License. You may obtain a copy of the License in the LICENSE file, or at:
 
 http://opensource.org/licenses/MIT
 
