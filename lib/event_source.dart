@@ -1,31 +1,32 @@
 import "dart:async";
 
 class EventController {
-  // awkward, whole class could be implemented as:
-  // StreamController _ctrl = new StreamController();
-  // final Stream _stream = _ctrl.stream.asBroadcastStream(); // << no luck ATM, no this here!
-  // void signal([var data]) => _ctrl.add(data);
+  // initialization is a bit awkward. if language allowed, whole class could be implemented as:
+  //    StreamController _ctl = new StreamController();
+  //    final Stream _stream = _ctl.stream.asBroadcastStream(); // << no luck, this not allowed here
+  //    void signal([var data]) => _ctl.add(data);
 
   StreamController _ctrl;
-  Stream _stream;
+  Stream _stream; // can't be final as we can't initialize it yet due to dependency on controller
 
   EventController() {
     _ctrl = new StreamController();
     _stream = _ctrl.stream.asBroadcastStream();
   }
 
+  // as _stream is not final, we need a getter here
   Stream get stream => _stream;
   void signal([var data]) => _ctrl.add(data);
 }
 
 class EventSource {
-  Map<Object, EventController> _ctrls = new Map<Object, EventController>();
-  EventSource get events => this;
+  Map<Object, EventController> _controllers = new Map<Object, EventController>();
+  EventSource get events => this; // for more readable access in derived class
 
   dynamic operator[] (var id) {
     if(id is Function) id = id(); // in case that event id is given by runtime expression
-    _ctrls.putIfAbsent(id, () => new EventController());
-    return _ctrls[id];
+    _controllers.putIfAbsent(id, () => new EventController());
+    return _controllers[id];
   }
 
   dynamic noSuchMethod(Invocation invocation) {
