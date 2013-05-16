@@ -1,6 +1,8 @@
 Event_source
 ============
 
+[![Build Status](https://drone.io/github.com/zdeslav/event_source/status.png)](https://drone.io/github.com/zdeslav/event_source/latest)
+
 Event_source is a library for wrist friendly event implementation in Dart.
 This is version 0.0.1 - expect bugs and breaking changes.
 
