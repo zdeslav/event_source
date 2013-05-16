@@ -23,7 +23,7 @@ class EventSource {
   EventSource get events => this;
 
   dynamic operator[] (var id) {
-    if(id is Function) id = id(); // in case that event id is given by runtime function call
+    if(id is Function) id = id(); // in case that event id is given by runtime expression
     _ctrls.putIfAbsent(id, () => new EventController());
     return _ctrls[id];
   }

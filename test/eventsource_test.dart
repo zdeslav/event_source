@@ -109,4 +109,18 @@ main() {
     dog.bark('wooof');
     expect(triggered, equals(false));
 });
+
+  test('Dynamic names treat same name as same symbol', () {
+    var dog = new DogMixin();
+    int count = 0;
+
+    // as Symbol(name) is used as an id, this more or less checks whether
+    // Symbol('x') == Symbol('x'). Documentation is not clear on this (no equality operator) but
+    // implementation shows that it is so. Otherwise, these would be 2 different events:
+    dog.onBark.listen((data) => count++);
+    dog.onBark.listen((data) => count++);
+
+    dog.bark('wooof'); // and this would create the third
+    expect(count, equals(2));
+});
 }
