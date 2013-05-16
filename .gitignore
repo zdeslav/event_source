@@ -1,6 +1,16 @@
-*.class
+# OS junk files
+[Tt]humbs.db
+.DS_Store
 
-# Package Files #
-*.jar
-*.war
-*.ear
+# Dart stuff
+packages
+out
+pubspec.lock
+*.dart.js
+*.js.map
+*.js.deps
+
+
+# sublime files
+.sublime-workspace
+.project
