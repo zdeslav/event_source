@@ -35,7 +35,7 @@ Now the client can attach as this:
 
 ```Dart
 var dog = new Dog();
-dog.onBark => (data) => print('$data');
+dog.onBark.listen((data) => print('$data'));
 dog.Bark('woof');
 ```
 
