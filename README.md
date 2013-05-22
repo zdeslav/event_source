@@ -5,14 +5,14 @@ Event_source
 
 Event_source is a library for wrist friendly event implementation in Dart.
 
-This is version 0.0.1 - expect bugs and breaking changes.
+This is a very early version - expect bugs and breaking changes.
 
 Overview
 --------
 
 At the moment, idiomatic implementation in Dart requires a bit of boilerplate code:
 
-```Dart
+```dart
 class Dog {
     StreamController _barkController = new StreamController();
     StreamController _wagController = new StreamController();
@@ -33,7 +33,7 @@ class Dog {
 
 Now the client can attach as this:
 
-```Dart
+```dart
 var dog = new Dog();
 dog.onBark => (data) => print('$data');
 dog.Bark('woof');
@@ -42,7 +42,7 @@ dog.Bark('woof');
 Event_source library removes the boilerplate from the implementation.
 It can be added to a class as mixin, removing the need for any extra fields:
 
-```Dart
+```dart
 class Dog extends Object with EventSource {
     Stream<String> get onBark => events.BARK.stream;
     Stream get onWag => events.WAG.stream;
@@ -54,7 +54,7 @@ class Dog extends Object with EventSource {
 
 If you don't like the idea of mixin poluting your class, just add an `EventSource` instance as a field, everything else is exactly the same:
 
-```Dart
+```dart
 class Dog  {
     EventSource events = new EventSource();
 
@@ -75,7 +75,7 @@ The library dynamically checks the name (it overrides `noSuchMethod`) to create 
 However, you don't have to rely on dynamic name dispatch if that's not your cup of tea.
 Here are different ways to setup events:
 
-```Dart
+```dart
 class Dog extends Object with EventSource {
     const int EVENT_WAG = 1;
 
@@ -100,7 +100,7 @@ I lied, there _are_ differences between mixin and field approach.
 
 Mixin approach allows following:
 
-```Dart
+```dart
 class Dog extends Object with EventSource {
     Stream<String> get onBark => BARK.stream;   // no need to prepend 'events.'
     Stream get onWag => this[EVENT_WAG].stream; // 'this' instead of 'events'. 'events' returns 'this' anyway
@@ -113,7 +113,7 @@ If you use an `EventSource` instance as a field, you don't have this choice, obv
 
 However, there is a situation where mixin approach might bite you. The name of the getter must differ from event ID if you use dynamic names:
 
-```Dart
+```dart
 class Dog extends Object with EventSource {
     Stream get onBark => events.onBark.stream;  // <<< stack overflow
     Stream get onWag => events['onWag'].stream; // this is fine
@@ -123,7 +123,7 @@ class Dog extends Object with EventSource {
 The reason is that Dog indeed has `onBark` getter, and as `events` point to the same object, it will again call the getter and so on.
 Field approach doesn't exhibit this problem. Following works just fine:
 
-```Dart
+```dart
 class Dog {
     EventSource events = new EventSource();
     Stream get onBark => events.onBark.stream; // no problem here, delegated to EventSource instance
@@ -136,7 +136,7 @@ So feel free to pick what seems the best option to you.
 
 Canceling is done the same way as with any stream:
 
-```Dart
+```dart
     var dog = new Dog();
     var sub = dog.onBark.listen((data) => print('$data'));
     dog.bark('wooof');

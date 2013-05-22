@@ -1,3 +1,5 @@
+library event_source;
+
 import "dart:async";
 
 /*
