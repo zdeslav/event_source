@@ -123,4 +123,207 @@ main() {
     dog.bark('wooof'); // and this would create the third
     expect(count, equals(2));
 });
+
+  test('Events can be debounced', () {
+    var dog = new DogMixin();
+    int count = 0;
+    String sound = "";
+
+    var debouncedBark = debounce(dog.onBark, 200, leading: true, trailing: true);
+
+    debouncedBark.listen((data) {
+      count++;
+      sound = data;});
+
+    dog.bark('wooof_1');
+    expect(count, equals(1));
+    expect(sound, equals('wooof_1'));
+    dog.bark('wooof_2');
+    dog.bark('wooof_3');
+    dog.bark('wooof_4');
+    expect(count, equals(1));
+    expect(sound, equals('wooof_1'));
+    dog.bark('wooof_5');
+    expect(count, equals(1));
+    expect(sound, equals('wooof_1'));
+
+    // we need to wait at least 200 ms to check the reply
+    var timer = new Timer(new Duration(milliseconds: 400), expectAsync0(() {
+      expect(count, equals(2));
+      expect(sound, equals('wooof_5'));
+    }));
+});
+
+  test('Debounced event leading edge only', () {
+    var dog = new DogMixin();
+    int count = 0;
+    String sound = "";
+
+    var debouncedBark = debounce(dog.onBark, 200, leading: true, trailing: false);
+
+    debouncedBark.listen((data) {
+      count++;
+      sound = data;});
+
+    dog.bark('wooof_1');
+    expect(count, equals(1));
+    expect(sound, equals('wooof_1'));
+    dog.bark('wooof_2');
+    dog.bark('wooof_3');
+
+    // we need to wait at least 200 ms to check the reply
+    var timer = new Timer(new Duration(milliseconds: 400), expectAsync0(() {
+      expect(count, equals(1));
+      expect(sound, equals('wooof_1'));
+    }));
+});
+
+  test('Debounced event trailing edge only', () {
+    var dog = new DogMixin();
+    int count = 0;
+    String sound = "";
+
+    // same as var debouncedBark = debounce(dog.onBark, 200, leading: false, trailing: true);
+    dog.onBark.transform(new DebouncingTransformer(200, leading: false, trailing: true)).listen((data) {
+      count++;
+      sound = data;
+    });
+
+    dog.bark('wooof_1');
+    expect(count, equals(0));
+    expect(sound, equals(''));
+    dog.bark('wooof_2');
+    dog.bark('wooof_3');
+    expect(count, equals(0));
+    expect(sound, equals(''));
+
+    // we need to wait at least 200 ms to check the reply
+    var timer = new Timer(new Duration(milliseconds: 400), expectAsync0(() {
+      expect(count, equals(1));
+      expect(sound, equals('wooof_3'));
+    }));
+
+  test('Events can be throttled', () {
+    var dog = new DogMixin();
+    var throttledBark = throttle(dog.onBark, 200, leading: true, trailing: true);
+
+    // run synchronously for half a second
+    ThrottlingResult result = run_loop(dog, throttledBark, 500);
+
+    var timer = new Timer(new Duration(milliseconds: 300), expectAsync0(() {
+      expect(result.time_received.length, equals(4));
+      expect(result.time_triggered.length, equals(4));
+      expect(result.sounds.length, equals(4));
+
+      expect(result.time_received[0], inInclusiveRange(0, 10));
+      expect(result.time_received[1], inInclusiveRange(190, 210));
+      expect(result.time_received[2], inInclusiveRange(390, 410));
+      expect(result.time_received[3], inInclusiveRange(590, 610));
+
+      expect(result.time_triggered[0], equals(0));
+      expect(result.time_triggered[1], inInclusiveRange(190, 210));
+      expect(result.time_triggered[2], inInclusiveRange(390, 410));
+      expect(result.time_triggered[3], inInclusiveRange(490, 510));
+
+      expect(result.sounds[3], equals('last_woof'));
+
+      for(int i = 0; i < 3; i++ )  // all but last
+      {
+        expect(result.sounds[i], equals('woof_${result.time_triggered[i]}'));
+      }
+    }));
+  });
+
+  test('Throttled event leading edge only', () {
+    var dog = new DogMixin();
+    var throttledBark = throttle(dog.onBark, 200, leading: true, trailing: false);
+
+    // run synchronously for half a second
+    ThrottlingResult result = run_loop(dog, throttledBark, 500);
+
+    var timer = new Timer(new Duration(milliseconds: 300), expectAsync0(() {
+      expect(result.time_received.length, equals(3));
+      expect(result.time_triggered.length, equals(3));
+      expect(result.sounds.length, equals(3));
+
+      expect(result.time_received[0], inInclusiveRange(0, 10));
+      expect(result.time_received[1], inInclusiveRange(190, 210));
+      expect(result.time_received[2], inInclusiveRange(390, 410));
+
+      expect(result.time_triggered[0], equals(0));
+      expect(result.time_triggered[1], inInclusiveRange(190, 210));
+      expect(result.time_triggered[2], inInclusiveRange(390, 410));
+
+      expect(result.sounds[2], isNot(equals('last_woof')));
+
+      for(int i = 0; i < 3; i++ )
+      {
+        expect(result.sounds[i], equals('woof_${result.time_triggered[i]}'));
+      }
+    }));
+  });
+
+  test('Throttled event trailing edge only', () {
+    var dog = new DogMixin();
+
+    // run synchronously for half a second
+    ThrottlingResult result = run_loop(
+        dog,
+        dog.onBark.transform(new ThrottlingTransformer(200, leading: false, trailing: true)),
+        500);
+
+    var timer = new Timer(new Duration(milliseconds: 300), expectAsync0(() {
+      expect(result.time_received.length, equals(3));
+      expect(result.time_triggered.length, equals(3));
+      expect(result.sounds.length, equals(3));
+
+      expect(result.time_received[0], inInclusiveRange(190, 210));
+      expect(result.time_received[1], inInclusiveRange(390, 410));
+      expect(result.time_received[2], inInclusiveRange(590, 610));
+
+      expect(result.time_triggered[0], inInclusiveRange(190, 210));
+      expect(result.time_triggered[1], inInclusiveRange(390, 410));
+      expect(result.time_triggered[2], inInclusiveRange(490, 510));
+
+      expect(result.sounds[2], equals('last_woof'));
+
+      for(int i = 0; i < 2; i++ ) // all but last
+      {
+        expect(result.sounds[i], equals('woof_${result.time_triggered[i]}'));
+      }
+    }));
+  });
+
+});
+}
+
+ThrottlingResult run_loop(var dog, Stream throttledStream, int durationMs) {
+
+  ThrottlingResult result = new ThrottlingResult();
+  var start = 0;
+  int offset = 0;
+
+  throttledStream.listen((data) {
+    result.sounds.add(data);
+    result.time_received.add(new DateTime.now().millisecondsSinceEpoch - start);
+    result.time_triggered.add(offset);
+  });
+
+  start = new DateTime.now().millisecondsSinceEpoch;
+
+  for(int i = 1; i > 0; i++ ) { // i > 0 -> deliberate infinite loop
+    offset = new DateTime.now().millisecondsSinceEpoch - start;
+    if(i == 0) offset = 0; // special case, so offset for 1st iteration is always 0
+    dog.bark('woof_$offset');
+    if(offset > durationMs) break;
+  }
+
+  dog.bark('last_woof');
+  return result;
+}
+
+class ThrottlingResult {
+  final time_triggered = new List<int>();
+  final time_received = new List<int>();
+  final sounds = new List<String>();
 }

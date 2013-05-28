@@ -5,6 +5,10 @@ Event_source
 
 Event_source is a library for wrist friendly event implementation in Dart.
 
+It provides helper classes to simplify creation and handling of streams and stream controllers required to fire events.
+
+Additionally it provides helpers for event throttling and debouncing.
+
 This is a very early version - expect bugs and breaking changes.
 
 Overview
@@ -141,6 +145,37 @@ Canceling is done the same way as with any stream:
     var sub = dog.onBark.listen((data) => print('$data'));
     dog.bark('wooof');
     sub.cancel();
+```
+
+Throttling and debouncing
+-------------------------
+
+Sometimes you don't want to handle all the events raised from an object, but instead want to handle them once they are finished firing.
+
+E.g. you might want to handle `onMouseMove` only once the mouse has stopped moving, or at most once each 100 Hz. Here's how to do that:
+
+```dart
+    import 'event_source`;
+    
+    // handle onMouseMove 100 ms after the mouse has stopped moving
+    debounce(element.onMouseMove, 100).listen((e) => print('$e'));
+    
+    // this is equivalent to 
+    window.onMouseMove.transform(new DebouncingTransformer(100)).listen((e) => print('$e'));
+    
+    // you can also specify whether to trigger the event at the beginning or the end of event stream
+    // leading/trailing arguments are also available on DebouncingTransformer constructor
+    debounce(element.onMouseMove, 100, leading: true, trailing: false).listen((e) => print('$e'));
+    
+    // handle onMouseMove once each 100 ms until mouse stops moving 
+    throttle(element.onMouseMove, 100).listen((e) => print('$e'));
+    
+    // this is equivalent to 
+    window.onMouseMove.transform(new ThrottlingTransformer(100)).listen((e) => print('$e'));
+    
+    // leading/trailing arguments are also available on ThrottlingTransformer constructor and
+    // throttle method, to control how the start and end of the stream should be handled
+    throttle(element.onMouseMove, 100, leading: true, trailing: false).listen((e) => print('$e'));
 ```
 
 Contributions

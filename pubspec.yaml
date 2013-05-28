@@ -1,5 +1,5 @@
 name: event_source
-version: 0.0.2
+version: 0.1.1
 author: Zdeslav Vojkovic <zdeslav.vojkovic@gmail.com>
 description: Wrist friendly events for Dart
 homepage: https://github.com/zdeslav/event_source
