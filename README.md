@@ -155,7 +155,7 @@ Sometimes you don't want to handle all the events raised from an object, but ins
 E.g. you might want to handle `onMouseMove` only once the mouse has stopped moving, or at most once each 100 Hz. Here's how to do that:
 
 ```dart
-import 'event_source`;
+import 'event_source';
     
 // handle onMouseMove 100 ms after the mouse has stopped moving
 debounce(element.onMouseMove, 100).listen((e) => print('$e'));
