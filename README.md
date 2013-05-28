@@ -141,10 +141,10 @@ So feel free to pick what seems the best option to you.
 Canceling is done the same way as with any stream:
 
 ```dart
-    var dog = new Dog();
-    var sub = dog.onBark.listen((data) => print('$data'));
-    dog.bark('wooof');
-    sub.cancel();
+var dog = new Dog();
+var sub = dog.onBark.listen((data) => print('$data'));
+dog.bark('wooof');
+sub.cancel();
 ```
 
 Throttling and debouncing
@@ -155,28 +155,30 @@ Sometimes you don't want to handle all the events raised from an object, but ins
 E.g. you might want to handle `onMouseMove` only once the mouse has stopped moving, or at most once each 100 Hz. Here's how to do that:
 
 ```dart
-    import 'event_source`;
+import 'event_source`;
     
-    // handle onMouseMove 100 ms after the mouse has stopped moving
-    debounce(element.onMouseMove, 100).listen((e) => print('$e'));
+// handle onMouseMove 100 ms after the mouse has stopped moving
+debounce(element.onMouseMove, 100).listen((e) => print('$e'));
     
-    // this is equivalent to 
-    window.onMouseMove.transform(new DebouncingTransformer(100)).listen((e) => print('$e'));
+// this is equivalent to 
+element.onMouseMove.transform(new DebouncingTransformer(100)).listen((e) => print('$e'));
     
-    // you can also specify whether to trigger the event at the beginning or the end of event stream
-    // leading/trailing arguments are also available on DebouncingTransformer constructor
-    debounce(element.onMouseMove, 100, leading: true, trailing: false).listen((e) => print('$e'));
+// you can also specify whether to trigger the event at the beginning or the end of event stream
+// leading/trailing arguments are also available on DebouncingTransformer constructor
+debounce(element.onMouseMove, 100, leading: true, trailing: false).listen((e) => print('$e'));
     
-    // handle onMouseMove once each 100 ms until mouse stops moving 
-    throttle(element.onMouseMove, 100).listen((e) => print('$e'));
+// handle onMouseMove once each 100 ms until mouse stops moving 
+throttle(element.onMouseMove, 100).listen((e) => print('$e'));
     
-    // this is equivalent to 
-    window.onMouseMove.transform(new ThrottlingTransformer(100)).listen((e) => print('$e'));
+// this is equivalent to 
+element.onMouseMove.transform(new ThrottlingTransformer(100)).listen((e) => print('$e'));
     
-    // leading/trailing arguments are also available on ThrottlingTransformer constructor and
-    // throttle method, to control how the start and end of the stream should be handled
-    throttle(element.onMouseMove, 100, leading: true, trailing: false).listen((e) => print('$e'));
+// leading/trailing arguments are also available on ThrottlingTransformer constructor and
+// throttle method, to control how the start and end of the stream should be handled
+throttle(element.onMouseMove, 100, leading: true, trailing: false).listen((e) => print('$e'));
 ```
+
+NOTE: If both `leading` and `trailing` arguments are set to `true`, the event will be triggered on the trailing edge only if the wrapped event is raised more than once during the delay period.
 
 Contributions
 -------------

@@ -294,6 +294,48 @@ main() {
     }));
   });
 
+  test('Debounced event with leading and trailing - trailing not fired if just 1 event', () {
+    var dog = new DogMixin();
+    int count = 0;
+
+    var debouncedBark = debounce(dog.onBark, 200, leading: true, trailing: true);
+
+    debouncedBark.listen((data) {
+      count++;
+      sound = data;});
+
+    dog.bark('wooof_1');
+    expect(count, equals(1));
+    expect(sound, equals('wooof_1'));
+
+    var timer = new Timer(new Duration(milliseconds: 300), expectAsync0(() {
+      // trailing was not fired, as there was only one bark
+      expect(count, equals(1));
+      expect(sound, equals('wooof_1'));
+    }));
+  });
+
+  test('Throttled event with leading and trailing - trailing not fired if just 1 event', () {
+    var dog = new DogMixin();
+    int count = 0;
+
+    var throttledBark = throttle(dog.onBark, 200, leading: true, trailing: true);
+
+    throttledBark.listen((data) {
+      count++;
+      sound = data;});
+
+    dog.bark('wooof_1');
+    expect(count, equals(1));
+    expect(sound, equals('wooof_1'));
+
+    var timer = new Timer(new Duration(milliseconds: 300), expectAsync0(() {
+      // trailing was not fired, as there was only one bark
+      expect(count, equals(1));
+      expect(sound, equals('wooof_1'));
+    }));
+  });
+
 });
 }
 

@@ -15,6 +15,9 @@ part of event_source;
  *
  *     // trigger printing 100 ms after last mouse move event
  *     debounce(window.onMouseMove, 100).listen((e) => print('$e'));
+ *
+ * If both `leading` and `trailing` arguments are set to `true`, the event will be triggered on the
+ * trailing edge only if the wrapped event is raised more than once during the delay period.
  */
 Stream debounce(Stream stream, int delay, {bool leading: false, bool trailing: true}) {
     return stream.transform(new DebouncingTransformer(delay, leading: leading, trailing: trailing));
@@ -35,6 +38,9 @@ Stream debounce(Stream stream, int delay, {bool leading: false, bool trailing: t
  *
  *     // trigger printing at most every 100 ms
  *     throttle(window.onMouseMove, 100).listen((e) => print('$e'));
+ *
+ * If both `leading` and `trailing` arguments are set to `true`, the event will be triggered on the
+ * trailing edge only if the wrapped event is raised more than once during the delay period.
  */
 Stream throttle(Stream stream, int delay, {bool leading: true, bool trailing: true}) {
     return stream.transform(new ThrottlingTransformer(delay, leading: leading, trailing: trailing));
@@ -50,7 +56,6 @@ Stream throttle(Stream stream, int delay, {bool leading: true, bool trailing: tr
  *     window.onMouseMove.transform(new ThrottlingTransformer(100)).listen((e) => print('$e'));
  *
  * The helper method [throttle] provides a bit shorter way to do the same thing.
- *
  */
 class ThrottlingTransformer<T> extends StreamEventTransformer<T, T> {
   final bool leading, trailing;
@@ -67,6 +72,9 @@ class ThrottlingTransformer<T> extends StreamEventTransformer<T, T> {
    * triggered on the leading edge of delay period, i.e. when the first wrapped event is triggered.
    * [trailing] must be set to true if event should be triggered on the trailing edge, i.e. after the
    * last wrapped event.
+   *
+   * If both `leading` and `trailing` arguments are set to `true`, the event will be triggered on the
+   * trailing edge only if the wrapped event is raised more than once during the delay period.
    */
   ThrottlingTransformer(this.delay, {bool this.leading: true, bool this.trailing: true}) : super() {}
 
@@ -105,34 +113,37 @@ class ThrottlingTransformer<T> extends StreamEventTransformer<T, T> {
  *     window.onMouseMove.transform(new DebouncingTransformer(100)).listen((e) => print('$e'));
  *
  * The helper method [debounce] provides a bit shorter way to do the same thing.
- *
  */
 class DebouncingTransformer<T> extends StreamEventTransformer<T, T> {
   final bool leading, trailing;
   final int delay;
+  bool _first = true;
   Timer timer = null;
 
-/*
- * Creates a [DebouncingTransformer] instance.
- *
- * It will filter the events from the transformed stream to ensure that they will be triggered
- * only after [delay] milliseconds has passed since the last raised event on wrapped stream.
- * [leading] must be set to true if event should be triggered on the leading edge of delay period,
- * i.e. when the first wrapped event is triggered. [trailing] must be set to true if event should be
- * triggered on the trailing edge, i.e. after the  * last wrapped event.
- */
+  /*
+   * Creates a [DebouncingTransformer] instance.
+   *
+   * It will filter the events from the transformed stream to ensure that they will be triggered
+   * only after [delay] milliseconds has passed since the last raised event on wrapped stream.
+   * [leading] must be set to true if event should be triggered on the leading edge of delay period,
+   * i.e. when the first wrapped event is triggered. [trailing] must be set to true if event should be
+   * triggered on the trailing edge, i.e. after the  * last wrapped event.
+   *
+   * If both `leading` and `trailing` arguments are set to `true`, the event will be triggered on the
+   * trailing edge only if the wrapped event is raised more than once during the delay period.
+   */
   DebouncingTransformer(this.delay, {bool this.leading: false, bool this.trailing: true}) : super() {}
 
   void handleData(T data, EventSink<T> sink) {
-    if(timer == null && leading) {
+    if(_first && leading) {
       sink.add(data);
+      _first = false;
     }
+    else if(trailing) {
+      if(timer != null) timer.cancel();
 
-    if(timer != null) timer.cancel();
-
-    timer = new Timer(new Duration(milliseconds: delay), () {
-      if(trailing) sink.add(data);
-    });
+      timer = new Timer(new Duration(milliseconds: delay), () => sink.add(data));
+    }
   }
 }
 
