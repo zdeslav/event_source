@@ -79,11 +79,14 @@ class EventSource {
     // therefore, we need to do this, but there is no way to get the clean memberName as string,
     // without MirrorSystem.getName(Symbol); which affects minification (and I am not sure on
     // current state of mirrors). We can live with this temporarily - it's good enough
+    // besides, we can't pass invocation.namedArguments as namedArguments parameter, as parameter
+    // is Map<String, dynamic> while invocation.namedArguments is Map<Symbol, dynamic>.
+    // this is pain in the ass, so I provide an empty map - live with it until the team sorts it out
     if(!invocation.isGetter)
       throw new NoSuchMethodError(this,
           invocation.memberName.toString(),
           invocation.positionalArguments,
-          invocation.namedArguments);
+          new Map<String, dynamic>()); // see comment above
 
     return this[invocation.memberName];
   }
