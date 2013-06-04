@@ -12,5 +12,6 @@ pubspec.lock
 
 
 # sublime files
-.sublime-workspace
-.project
+*.sublime-workspace
+*.sublime-project
+*.project

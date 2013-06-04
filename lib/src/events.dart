@@ -15,8 +15,8 @@ class EventController {
   Stream _stream; // can't be final as we can't initialize it yet due to dependency on controller
 
   EventController() {
-    _ctrl = new StreamController();
-    _stream = _ctrl.stream.asBroadcastStream();
+    _ctrl = new StreamController.broadcast(sync: true);
+    _stream = _ctrl.stream;
   }
 
   /*
