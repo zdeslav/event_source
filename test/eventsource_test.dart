@@ -4,7 +4,7 @@ import '../lib/event_source.dart';
 
 class DogMixin extends Object with EventSource
 {
-  const int EVENT_WAG = 1;
+  static const int EVENT_WAG = 1;
 
   Stream<String> get onBark => events.EVENT_BARK.stream; // => EVENT_BARK.stream; also works
   Stream get onWag => events[EVENT_WAG].stream;          // => this[EVENT_WAG].stream; also works
@@ -20,7 +20,7 @@ class DogMixin extends Object with EventSource
 class DogComposed
 {
   EventSource events = new EventSource();
-  const int EVENT_WAG = 1;
+  static const int EVENT_WAG = 1;
 
   Stream<String> get onBark => events.EVENT_BARK.stream;
   Stream get onWag => events[EVENT_WAG].stream;
